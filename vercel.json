@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/v1/:match*",
+      "destination": "https://article-sigma-ten.vercel.app/:match*"
+    }
+  ]
+}
