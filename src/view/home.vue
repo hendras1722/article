@@ -3,8 +3,23 @@
     <nav class="border-b border-slate-300 px-[100px] py-5 ">
       <div class="md:text-5xl text-xl font-bold text-shadow-2xs flex items-center justify-between">
         <div>Article</div>
-        <UButton v-if="getMe.getMe?.id" @click="router.push('/admin/article')" variant="outline">Bikin Artikel</UButton>
-        <UButton v-else variant="outline" @click="router.push('/login')">Login</UButton>
+        <div>
+          <div v-if="getMe.getMe?.id" class="flex items-center gap-5">
+            <UButton @click="router.push('/admin/article')" variant="outline">Bikin Artikel</UButton>
+            <UButton variant="link" @click="async () => {
+              await cookies.remove('token', {
+                path: '/'
+              })
+              getMe.removeGetMe()
+              router.push('/login')
+            }">
+              <LogOut class="text-primary" />
+
+            </UButton>
+          </div>
+          <UButton v-else variant="outline" @click="router.push('/login')">Login</UButton>
+
+        </div>
       </div>
     </nav>
     <main class="flex-1 md:px-[100px] px-[50px] py-6">
@@ -163,7 +178,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowUpRight, Calendar, Search } from 'lucide-vue-next';
+import { ArrowUpRight, Calendar, LogOut, Search } from 'lucide-vue-next';
 import { colorFromName } from '../utils/ColorFromName';
 import { SelectMenuItem } from '@nuxt/ui';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -176,10 +191,11 @@ import { useGetMe } from '../store/getme';
 import { BaseResponse, Pagination } from '../type/BaseResponse';
 import { Category } from '../type/Category';
 import { Article } from '../type/Article';
-
+import { useCookies } from '@vueuse/integrations/useCookies'
 
 const route = useRoute()
 const router = useRouter()
+const cookies = useCookies()
 
 const paramsFilter = ref({
   page: 1,

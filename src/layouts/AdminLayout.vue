@@ -1,11 +1,9 @@
 <template>
   <div class="h-screen bg-gray-50 overflow-hidden">
-    <!-- Sidebar -->
     <div :class="[
       'fixed min-h-full left-0 z-50 bg-white shadow-lg transition-all duration-300 ease-in-out',
       sidebarCollapsed ? '-translate-x-full lg:translate-x-0 lg:w-16' : 'w-64'
     ]" :style="!sidebarCollapsed && sidebarWidth ? `width: ${sidebarWidth}px` : ''">
-      <!-- Sidebar Header -->
       <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200">
         <div class="flex items-center space-x-3 font-bold" v-if="!sidebarCollapsed">
           Hendra
@@ -13,12 +11,10 @@
         <div v-else class="flex items-center space-x-3 font-bold">H</div>
       </div>
 
-      <!-- Navigation Menu -->
       <nav class="flex-1 px-2 py-4 space-y-1" aria-label="Sidebar">
         <UNavigationMenu :collapsed="sidebarCollapsed" :items="items" color="primary" orientation="vertical" />
       </nav>
 
-      <!-- Resize Handle -->
       <div v-if="!sidebarCollapsed"
         class="absolute right-0 top-0 bottom-0 w-1 bg-transparent hover:bg-blue-500 cursor-col-resize transition-colors duration-150 group"
         @mousedown="startResize">
@@ -27,17 +23,14 @@
     </div>
 
 
-    <!-- Mobile Sidebar Overlay -->
     <div v-if="!sidebarCollapsed"
       class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity duration-300"
       @click="toggleSidebar"></div>
 
-    <!-- Main Content -->
     <div :class="[
       'flex flex-col transition-all duration-300 ease-in-out min-h-screen',
       sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
     ]" :style="!sidebarCollapsed && sidebarWidth ? `margin-left: ${sidebarWidth}px` : ''">
-      <!-- Top Navbar -->
       <header class="bg-white shadow-sm border-b border-gray-200 h-16 flex items-center justify-between px-4">
         <div class="flex items-center space-x-4">
           <UButton icon="i-heroicons-bars-3-16-solid" variant="ghost" @click="toggleSidebar">
@@ -66,7 +59,6 @@
         </div>
       </header>
 
-      <!-- Page Content -->
       <main class="flex-1 p-6 overflow-auto max-h-[calc(100vh-64px)]">
         <div class="mx-auto">
           <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
