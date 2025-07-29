@@ -5,18 +5,28 @@
 
       <div class="flex gap-3 items-center">
         <div class="w-8 h-8 flex justify-center items-center font-bold p-1 text-white rounded-full uppercase"
-          :style="{ backgroundColor: colorFromName(getData.data?.user.username.slice(0, 1)) }">
-          {{ getData.data?.user.username.slice(0, 1) }}
+          :style="{ backgroundColor: colorFromName((getData.data || {})?.user.username.slice(0, 1)) }">
+          {{ (getData.data || {})?.user.username.slice(0, 1) }}
         </div>
-        <div>{{ getData.data?.user.username }}</div>
+        <div class="capitalize">{{ (getData.data || {})?.user.username }}</div>
       </div>
     </div>
     <div>
-      <img :src="getData.data?.cover_image_url" class="w-full h-[500px] my-3 rounded-2xl object-cover" alt="logo" />
-      <small class="font-bold text-primary">{{ getData.data?.category?.name }}</small>
-      <h1 class="text-2xl font-bold line-clamp-2 mt-2">{{ getData.data?.title }}</h1>
-      <p class="mt-2" v-html="getData.data?.description"></p>
+      <img :src="(getData.data || {})?.cover_image_url" class="w-full h-[500px] my-3 rounded-2xl object-cover"
+        alt="logo" />
+      <small class="font-bold text-primary">{{ (getData.data || {})?.category?.name }}</small>
+      <h1 class="text-2xl font-bold line-clamp-2 mt-2">{{ (getData.data || {})?.title }}</h1>
+      <p class="mt-2" v-html="(getData.data || {})?.description"></p>
     </div>
+    <UButton variant="link" class="w-fit mt-5" size="xs" v-if="isSupported" @click="() => {
+      share({
+        title: 'Article ' + getData.data?.title,
+        text: getData.data?.description,
+        url: route.fullPath
+      })
+    }">
+      <ExternalLink /> Share this article
+    </UButton>
     <div class="border-2 border-slate-300 rounded-full my-5"></div>
     <div>Maybe you like this</div>
     <div class="grid md:grid-cols-3 grid-cols-1 grid-rows-1 gap-5">
@@ -32,7 +42,7 @@
             <div class="flex gap-10 justify-between mt-3 items-center">
               <div class="flex gap-3 items-center">
                 <div class="w-8 h-8 flex justify-center items-center font-bold p-1 text-white rounded-full uppercase"
-                  :style="{ backgroundColor: colorFromName(getData.data?.user.username.slice(0, 1)) }">
+                  :style="{ backgroundColor: colorFromName((getData.data || {})?.user.username.slice(0, 1)) }">
                   {{ item.user.username.slice(0, 1) }}
                 </div>
                 <div>{{ item.user.username }}</div>
@@ -42,6 +52,7 @@
         </RouterLink>
       </template>
     </div>
+
     <div class="border-2 border-slate-300 rounded-full my-5"></div>
     <div class="text-2xl font-bold">Comments</div>
     <UTextarea placeholder="Write your comment" class="mt-3" :rows="4" v-model="payload.data.content" />
@@ -98,7 +109,8 @@ import { RouterLink, useRoute } from 'vue-router';
 import { colorFromName } from '../utils/ColorFromName';
 import { useMyFetch } from '../composable/useApi';
 import { computed, onMounted, ref, watch } from 'vue';
-import { SendHorizontal } from 'lucide-vue-next';
+import { ExternalLink, SendHorizontal } from 'lucide-vue-next';
+import { useShare } from '@vueuse/core';
 
 interface Article<T> {
   data: T;
@@ -180,6 +192,8 @@ const loading = ref(false)
 const loadingEdit = ref(false)
 const loadingDelete = ref(false)
 const loadingGet = ref(false)
+const { share, isSupported } = useShare()
+
 const payload = ref<{ data: { content: string; article: number | null } }>({
   data: {
     content: "",
