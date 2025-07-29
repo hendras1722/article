@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/v1/:match*",
-      "destination": "https://article-sigma-ten.vercel.app/:match*"
+      "destination": "https://extra-brooke-yeremiadio-46b2183e.koyeb.app/:match*"
     }
   ]
 }
