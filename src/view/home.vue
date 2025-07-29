@@ -170,84 +170,12 @@ import { computed, onMounted, ref, watch } from 'vue';
 
 import { useMyFetch } from '../composable/useApi';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
-import { differenceInHours, format, formatDistance, formatDistanceToNow, formatDistanceToNowStrict, subDays } from 'date-fns';
+import { format, formatDistanceToNowStrict } from 'date-fns';
 import { debounce } from 'radash';
 import { useGetMe } from '../store/getme';
-
-
-interface Article {
-  data: Items[];
-  meta: Meta;
-}
-
-interface Category {
-  data: DataCategory[];
-  meta: Meta;
-}
-
-interface DataCategory {
-  id: string;
-  documentId: string;
-  name: string;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date;
-  locale: null;
-}
-
-
-interface Items {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  cover_image_url: string;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date;
-  user: UserClass;
-  locale: null;
-  category: Category | null;
-}
-
-
-interface UserClass {
-  id: number;
-  documentId: string;
-  username: string;
-  email: string;
-  provider: string;
-  confirmed: boolean;
-  blocked: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date;
-  locale: null;
-}
-
-
-interface Category {
-  id: number;
-  documentId: string;
-  name: string;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date;
-  locale: null;
-}
-
-interface Meta {
-  pagination: Pagination;
-}
-
-interface Pagination {
-  page: number;
-  pageSize: number;
-  pageCount: number;
-  total: number;
-}
+import { BaseResponse, Pagination } from '../type/BaseResponse';
+import { Category } from '../type/Category';
+import { Article } from '../type/Article';
 
 
 const route = useRoute()
@@ -304,13 +232,13 @@ const { data, isFetching } = useMyFetch<string>(apiUrl, {
 const { data: category } = useMyFetch<string>('/api/categories')
 
 const getCategory = computed(() => {
-  const itemCategory = category.value ? (JSON.parse(category.value) as Category) : { data: [], meta: { pagination: {} as Pagination } }
+  const itemCategory = category.value ? (JSON.parse(category.value) as BaseResponse<Category[]>) : { data: [], meta: { pagination: {} as Pagination } } as BaseResponse<Category[]>
   return {
     ...itemCategory,
     data: [{
       label: 'Semua',
       value: ''
-    }, ...itemCategory.data.map((item: DataCategory) => {
+    }, ...itemCategory.data.map((item: Category) => {
       return {
         label: item.name,
         value: String(item.name)
@@ -319,7 +247,7 @@ const getCategory = computed(() => {
   }
 })
 
-const getData = computed(() => data.value ? (JSON.parse(data.value) as Article) : { data: [], meta: { pagination: {} as Pagination } })
+const getData = computed(() => data.value ? (JSON.parse(data.value) as BaseResponse<Article[]>) : { data: [], meta: { pagination: {} as Pagination } } as BaseResponse<Article[]>)
 
 watch(paramsFilter,
   (newValue) => {

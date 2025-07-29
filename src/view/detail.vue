@@ -111,78 +111,9 @@ import { useMyFetch } from '../composable/useApi';
 import { computed, onMounted, ref, watch } from 'vue';
 import { ExternalLink, SendHorizontal } from 'lucide-vue-next';
 import { useShare } from '@vueuse/core';
-
-interface Article<T> {
-  data: T;
-  meta: Meta;
-}
-
-interface Meta {
-  pagination: Pagination;
-}
-
-interface Pagination {
-  page: number;
-  pageSize: number;
-  pageCount: number;
-  total: number;
-}
-
-interface Items {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  cover_image_url: string;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date;
-  user: UserClass;
-  locale: null;
-  category: Category | null;
-}
-
-interface UserClass {
-  id: number;
-  documentId: string;
-  username: string;
-  email: string;
-  provider: string;
-  confirmed: boolean;
-  blocked: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date;
-  locale: null;
-}
-
-interface Category {
-  id: number;
-  documentId: string;
-  name: string;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date;
-  locale: null;
-}
-
-interface Comments {
-  data: ItemsComments[];
-  meta: Meta;
-}
-
-interface ItemsComments {
-  id: number;
-  documentId: string;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date;
-  locale: null;
-  article: Items;
-  user: UserClass;
-}
+import { BaseResponse } from '../type/BaseResponse';
+import { Article } from '../type/Article';
+import { Comments } from '../type/Comments';
 
 const route = useRoute()
 const isEdit = ref<number | null>(null)
@@ -215,7 +146,7 @@ const { data, error, isFetching } = useMyFetch<string>(`/api/articles/${route.pa
 const apiUrl = ref(`/api/articles`)
 const apiUrlComments = ref('')
 
-const getData = computed(() => data.value ? JSON.parse(data.value) as Article<Items> : {} as Article<Items>)
+const getData = computed(() => data.value ? JSON.parse(data.value) as BaseResponse<Article> : {} as BaseResponse<Article>)
 
 const { data: ListData, execute } = useMyFetch<string>(apiUrl, {
   immediate: false
@@ -226,11 +157,11 @@ const { data: ListComment, execute: executeComment, isFetching: isFetchingCommen
 const getListComment = computed(() => {
   if (!ListComment.value) return []
   if (JSON.parse(ListComment.value).data.length === 0) return []
-  const getDocumentId = (JSON.parse(ListComment.value) as Comments).data.filter((item) => {
+  const getDocumentId = (JSON.parse(ListComment.value) as BaseResponse<Comments[]>).data.filter((item) => {
     return item.article && (String(item.article.documentId) === route.params.id)
   })?.[0].documentId
   apiUrlComments.value = `/api/comments/${getDocumentId}`
-  return (JSON.parse(ListComment.value) as Comments).data.filter((item) => {
+  return (JSON.parse(ListComment.value) as BaseResponse<Comments[]>).data.filter((item) => {
     return item.article && (String(item.article.documentId) === route.params.id)
   })
 })
@@ -244,7 +175,7 @@ watch(isFetching, (newValue, oldValue) => {
 })
 
 const getDataList = computed(() => {
-  return ListData.value ? JSON.parse(ListData.value) as Article<Items[]> : {} as Article<Items[]>
+  return ListData.value ? JSON.parse(ListData.value) as BaseResponse<Article[]> : {} as BaseResponse<Article[]>
 })
 
 const { execute: fetchEdit, statusCode: statusCodeEdit, isFetching: isFetchingEdit, error: errorEdit } = useMyFetch(apiUrlComments, {

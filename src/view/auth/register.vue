@@ -33,7 +33,6 @@ import z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { reactive } from 'vue'
 import { useMyFetch } from '../../composable/useApi'
-import { useCookies } from '@vueuse/integrations/useCookies'
 
 import { useRouter } from 'vue-router'
 
@@ -57,7 +56,7 @@ const state = reactive<Schema>({
 const toast = useToast()
 const router = useRouter()
 
-const { execute, isFetching, error, data } = useMyFetch<string>('/api/auth/local/register', {
+const { execute, isFetching, error } = useMyFetch<string>('/api/auth/local/register', {
   immediate: false,
 }).post(state)
 

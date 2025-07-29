@@ -58,34 +58,10 @@ import { useRoute } from 'vue-router';
 import { debounce } from 'radash';
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
+import type { BaseResponse } from '../../type/BaseResponse';
+import type { Category } from '../../type/Category';
 
 
-interface Category {
-  data: DataCategory[];
-  meta: Meta;
-}
-
-interface Meta {
-  pagination: Pagination;
-}
-
-interface Pagination {
-  page: number;
-  pageSize: number;
-  pageCount: number;
-  total: number;
-}
-
-interface DataCategory {
-  id: number;
-  documentId: string;
-  name: string;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date;
-  locale: null;
-}
 
 const schema = z.object({
   name: z.string().min(3, 'Must be at least 3 characters'),
@@ -97,7 +73,7 @@ const state = reactive<Partial<Schema>>({
   name: '',
 })
 
-const selected = ref<DataCategory>()
+const selected = ref<Category>()
 const toast = useToast()
 const route = useRoute()
 const apiUrl = ref('/api/categories?pagination[page]=1&pagination[pageSize]=10&sort[0]=createdAt:desc')
@@ -126,7 +102,7 @@ const debounceChange = debounce({ delay: 500 }, async (query: string) => {
   await execute()
 })
 
-const columns: TableColumn<DataCategory>[] = [
+const columns: TableColumn<Category>[] = [
   {
     accessorKey: 'documentId',
     header: 'ID'
@@ -148,7 +124,7 @@ watch(isFetching, (newValue) => {
 })
 
 const getData = computed(() => {
-  return data.value ? JSON.parse(data.value) as Category : { data: [], meta: { pagination: { page: 0, pageSize: 0, pageCount: 0, total: 0 } } } as Category
+  return data.value ? JSON.parse(data.value) as BaseResponse<Category[]> : { data: [], meta: { pagination: { page: 0, pageSize: 0, pageCount: 0, total: 0 } } } as BaseResponse<Category[]>
 })
 
 watch(params, (newValue) => {
@@ -189,13 +165,13 @@ async function onDelete() {
   toast.add({ title: 'Error', description: errorDelete.value, color: 'error' })
 }
 
-async function handleDelete(item: DataCategory) {
+async function handleDelete(item: Category) {
   selected.value = item
   openModalDelete.value = true
 }
 
 
-function handleEdit(item: DataCategory) {
+function handleEdit(item: Category) {
   isEdit.value = '/api/categories/' + item.documentId
   openModal.value = true
   state.name = item.name

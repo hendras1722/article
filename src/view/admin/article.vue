@@ -91,61 +91,10 @@ import { debounce } from 'radash';
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { useGetMe } from '../../store/getme';
+import { Article } from '../../type/Article';
+import { BaseResponse } from '../../type/BaseResponse';
+import { Category } from '../../type/Category';
 
-interface Article {
-  data: Items[]
-  meta: Meta;
-}
-
-interface Items {
-  id: number;
-  documentId: string;
-  title: string;
-  description: string;
-  cover_image_url: string;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date;
-  user: UserClass;
-  locale: null;
-  category: Category | null;
-}
-
-interface Meta {
-  pagination: Pagination;
-}
-
-interface Pagination {
-  page: number;
-  pageSize: number;
-  pageCount: number;
-  total: number;
-}
-
-interface UserClass {
-  id: number;
-  documentId: string;
-  username: string;
-  email: string;
-  provider: string;
-  confirmed: boolean;
-  blocked: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date;
-  locale: null;
-}
-
-interface Category {
-  id: number;
-  documentId: string;
-  name: string;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt: Date;
-  locale: null;
-}
 
 
 const schema = z.object({
@@ -183,7 +132,7 @@ const openModal = ref(false)
 const file = ref<File | null>(null)
 const isEdit = ref('')
 const loadingTable = ref(false)
-const selected = ref<Items>()
+const selected = ref<Article>()
 const getMe = useGetMe()
 
 const debounceChange = debounce({ delay: 500 }, async (query: string) => {
@@ -201,7 +150,7 @@ const debounceChange = debounce({ delay: 500 }, async (query: string) => {
   await execute()
 })
 
-const columns: TableColumn<Items>[] = [
+const columns: TableColumn<Article>[] = [
   {
     accessorKey: 'documentId',
     header: 'ID'
@@ -230,7 +179,7 @@ watch(isFetching, (newValue) => {
 })
 
 const getData = computed(() => {
-  return data.value ? JSON.parse(data.value) as Article : { data: [], meta: { pagination: { page: 0, pageSize: 0, pageCount: 0, total: 0 } } } as Article
+  return data.value ? JSON.parse(data.value) as BaseResponse<Article[]> : { data: [], meta: { pagination: { page: 0, pageSize: 0, pageCount: 0, total: 0 } } } as BaseResponse<Article[]>
 })
 onMounted(() => {
   apiUrl.value = `/api/articles?pagination[page]=1&pagination[pageSize]=10&populate[user]=*&populate[category]=*&sort[0]=createdAt:desc&filters[user][documentId][$eqi]=${getMe.getMe?.documentId}`
@@ -272,7 +221,7 @@ const { execute: executeCreate, error: errorCreate } = useMyFetch('/api/articles
 
 }).post(payload)
 
-function handleDelete(item: Items) {
+function handleDelete(item: Article) {
   selected.value = item
   openModalDelete.value = true
 }
@@ -291,7 +240,7 @@ async function onDelete() {
   toast.add({ title: 'Error', description: errorDelete.value, color: 'error' })
 }
 
-function handleEdit(item: Items) {
+function handleEdit(item: Article) {
   isEdit.value = item.documentId
   openModal.value = true
   state.title = item.title
